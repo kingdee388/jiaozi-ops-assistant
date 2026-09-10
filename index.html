@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交子金控运维智能问答助手</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;height:100vh;display:flex;flex-direction:column;background:#f0f2f5;color:#333}
+.header{background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 100%);color:#fff;padding:16px 24px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.header h1{font-size:20px;font-weight:600}
+.header .sub{font-size:13px;opacity:.8;margin-top:2px}
+.main{display:flex;flex:1;overflow:hidden}
+.left{width:380px;min-width:320px;background:#fff;border-right:1px solid #e8e8e8;display:flex;flex-direction:column}
+.right{flex:1;background:#f7f8fa;display:flex;flex-direction:column;overflow:hidden}
+.pad{padding:16px;border-bottom:1px solid #e8e8e8;background:#fafafa}
+.pad label{font-size:14px;font-weight:600;color:#1a3a5c;display:block;margin-bottom:8px}
+.pad textarea{width:100%;height:90px;border:1px solid #d9d9d9;border-radius:6px;padding:10px 12px;font-size:14px;line-height:1.6;resize:vertical;outline:none;font-family:inherit}
+.pad textarea:focus{border-color:#2d6a9f;box-shadow:0 0 0 2px rgba(45,106,159,.1)}
+.pad textarea::placeholder{color:#bbb}
+.acts{display:flex;gap:8px;margin-top:10px}
+.btn{padding:8px 20px;border:none;border-radius:6px;font-size:14px;cursor:pointer;font-weight:500}
+.btn-pri{background:#2d6a9f;color:#fff}
+.btn-pri:hover{background:#1a3a5c}
+.btn-sec{background:#f0f0f0;color:#666}
+.btn-sec:hover{background:#e0e0e0}
+.tags{padding:12px 16px;border-bottom:1px solid #e8e8e8}
+.tags .l{font-size:12px;color:#999;margin-bottom:8px}
+.tags .w{display:flex;flex-wrap:wrap;gap:6px}
+.tags .t{padding:4px 12px;background:#eaf4fe;color:#2d6a9f;border-radius:12px;font-size:12px;cursor:pointer;border:1px solid #cce4f7}
+.tags .t:hover{background:#2d6a9f;color:#fff;border-color:#2d6a9f}
+.cats{padding:10px 16px;border-bottom:1px solid #e8e8e8;display:flex;flex-wrap:wrap;gap:4px}
+.cats .c{padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;border:1px solid transparent}
+.cats .c0{background:#e6f7ff;color:#1890ff;border-color:#91d5ff}
+.cats .c1{background:#fff7e6;color:#d46b08;border-color:#ffd591}
+.cats .c2{background:#f6ffed;color:#389e0d;border-color:#b7eb8f}
+.cats .c3{background:#fff0f6;color:#c41d7f;border-color:#ffadd2}
+.cats .c4{background:#f0f5ff;color:#2f54eb;border-color:#adc6ff}
+.cats .c5{background:#fffbe6;color:#ad8b00;border-color:#ffe58f}
+.cats .c6{background:#f9f0ff;color:#722ed1;border-color:#d3adf7}
+.ah{padding:16px 24px 8px;font-size:13px;color:#999;display:flex;align-items:center;gap:8px}
+.ah .dot{width:8px;height:8px;border-radius:50%;background:#52c41a;display:inline-block}
+.ac{flex:1;overflow-y:auto;padding:0 24px 24px}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#bbb;text-align:center;padding:40px}
+.empty .ic{font-size:48px;margin-bottom:16px;opacity:.5}
+.empty p{font-size:14px;line-height:1.8}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:20px 24px;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card .lb{font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.card .q{font-size:16px;font-weight:600;color:#1a3a5c;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f0f0}
+.card .a{font-size:14px;line-height:1.9;color:#444}
+.card .a p{margin-bottom:8px}
+.card .a strong{color:#1a3a5c}
+.card .a ol,.card .a ul{margin:8px 0 8px 20px}
+.card .a li{margin-bottom:4px}
+.card .badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;margin-bottom:12px}
+.card .badge.b0{background:#e6f7ff;color:#1890ff}
+.card .badge.b1{background:#fff7e6;color:#d46b08}
+.card .badge.b2{background:#f6ffed;color:#389e0d}
+.card .badge.b3{background:#fff0f6;color:#c41d7f}
+.card .badge.b4{background:#f0f5ff;color:#2f54eb}
+.card .badge.b5{background:#fffbe6;color:#ad8b00}
+.card .badge.b6{background:#f9f0ff;color:#722ed1}
+.nf{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:24px;text-align:center;animation:fade .3s ease}
+.nf .t{font-size:15px;font-weight:600;color:#d46b08;margin-bottom:8px}
+.nf .d{font-size:14px;color:#666;margin-bottom:16px;line-height:1.8}
+.nf .sl{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;background:#2d6a9f;color:#fff;border-radius:6px;text-decoration:none;font-size:14px}
+.nf .sl:hover{background:#1a3a5c}
+.load{display:none;align-items:center;gap:8px;padding:8px 16px;color:#2d6a9f;font-size:13px}
+.load.on{display:flex}
+.load .sp{width:16px;height:16px;border:2px solid #e8e8e8;border-top-color:#2d6a9f;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.meta{font-size:12px;color:#bbb;margin-top:12px;padding-top:8px;border-top:1px solid #f0f0f0}
+.hl{background:#fff3cd;padding:0 2px;border-radius:2px}
+@media(max-width:768px){.main{flex-direction:column}.left{width:100%;min-width:unset;max-height:40vh;border-right:none;border-bottom:1px solid #e8e8e8}}
+</style>
+</head>
+<body>
+<div class="header"><div><h1>交子金控 运维智能问答</h1><div class="sub">基于运维知识库的智能问答助手</div></div></div>
+<div class="main">
+<div class="left">
+<div class="pad"><label for="q">输入你的运维问题</label>
+<textarea id="q" placeholder="例如：供应商审核失败怎么办？&#10;影像上传不上去如何处理？&#10;如何反结账？" rows="3"></textarea>
+<div class="acts"><button class="btn btn-pri" onclick="ask()">提问</button><button class="btn btn-sec" onclick="clr()">清空</button><div class="load" id="ld"><div class="sp"></div>正在匹配知识库...</div></div></div>
+<div class="tags"><div class="l">常见问题</div><div class="w" id="sug"></div></div>
+<div class="cats" id="cats"></div>
+</div>
+<div class="right"><div class="ah"><span class="dot"></span>问答结果</div>
+<div class="ac" id="ans"><div class="empty"><div class="ic">💬</div><p>在左侧输入运维相关问题，<br>系统将自动从知识库中检索答案。</p><p style="margin-top:12px;font-size:12px;color:#ccc;">供应商管理 · 流程处理 · 权限设置 · 合同管理<br>业务操作 · 凭证处理 · 特殊事项</p></div></div>
+</div></div>
+
+<script>
+const KB=[
+{id:1,cat:"基础资料",cc:"b0",q:"供应商审核失败，报错推送NCC失败",kw:["供应商审核","审核失败","NCC","供应商"],a:"<p><strong>问题原因：</strong>供应商审核时推送NCC失败。</p><p><strong>检查事项：</strong></p><ol><li>客商是否关联了NCC客商编码</li><li>NCC客商是否关联</li><li>商务伙伴中的【NCC客商编码】是NCC的客户编码，而非NCC供应商编码</li><li>NCC返回主键是否正确</li></ol>"},
+{id:2,cat:"基础资料",cc:"b0",q:"供应商银行信息录入错误，删除不了",kw:["银行信息","银行账户","删除","供应商"],a:"<p><strong>解决方式：</strong>将银行账户的【默认】键取消，就可以删除银行信息了。</p>"},
+{id:3,cat:"基础资料",cc:"b0",q:"影像一直上传不上去",kw:["影像","上传","附件"],a:"<p><strong>解决方式：</strong></p><ol><li>在影像映射维护中搜索单据编号</li><li>若影像状态是【影像已就绪】，点击废弃影像，再让经办人重新上传</li><li>若影像状态是【无影像】，是因为没有上传封面，需要告诉经办人封面和附件要一起上传</li></ol>"},
+{id:4,cat:"基础资料",cc:"b0",q:"已审核单据如何打印影像封面",kw:["打印","影像封面","已审核"],a:"<p><strong>解决方式：</strong>通过打印设置选择对应模板即可打印影像封面。</p>"},
+{id:5,cat:"基础资料",cc:"b0",q:"某个字段是否必填",kw:["字段","必填","显隐性"],a:"<p><strong>查看路径：</strong>智能核算机器人 → 显隐性配置 → 辅助核算项显隐性映射表。</p>"},
+{id:6,cat:"流程处理",cc:"b1",q:"下推失败，基础资料未分配给目标组织",kw:["下推失败","基础资料","未分配","目标组织"],a:"<p><strong>解决方式：</strong></p><ol><li>审核该供应商</li><li>审核成功后，点击【重新激活】（流程实例 → 显示错误信息 → 重新激活）</li></ol>"},
+{id:7,cat:"流程处理",cc:"b1",q:"应收单关联预收款单未结算金额不足",kw:["应收单","预收款","未结算","金额不足","本次结算金额"],a:"<p><strong>问题原因：</strong>应收单关联预收款单时，【本次结算金额】大于收款单剩余可结算金额，导致挂起。</p><p><strong>解决方式：</strong></p><ol><li>查询该收款单的结算记录</li><li>联系结算人员，告知其情况</li></ol>"},
+{id:8,cat:"流程处理",cc:"b1",q:"审核报错：银行状态必须为已提交才能审核",kw:["审核","银行状态","已提交","NCC失败"],a:"<p><strong>问题原因：</strong>一般是因为这个单据已经审核过了，但是推送NCC失败。</p><p><strong>解决方式：</strong></p><ol><li>查看单据状态是否是【已审核】</li><li>若是已审核，查看推送NCC是否成功</li><li>若是已审核但推送NCC失败，发给陈福东处理</li></ol>"},
+{id:9,cat:"流程处理",cc:"b1",q:"提交报错，请填写明细行结算账户/申请支付金额",kw:["提交","明细行","结算账户","申请支付金额","往来户"],a:"<p><strong>问题原因：</strong>应付单明细行存在多行且数据一致。只需一个明细行。</p><p><strong>解决方式：</strong></p><ol><li>强制终止流程（流程实例 → 强制终止流程）</li><li>合并填写一致的明细数据</li><li>重新提交</li></ol>"},
+{id:10,cat:"流程处理",cc:"b1",q:"实物卡片挂起，折旧凭证已生成",kw:["实物卡片","挂起","折旧凭证"],a:"<p><strong>解决方式：</strong>联系共享财务将本月的折旧凭证删除，删除后点击【重新激活】即可。</p>"},
+{id:11,cat:"权限人员部门",cc:"b2",q:"有下查权限但点下查显示没有权限",kw:["下查","权限","应收模块","入口错误"],a:"<p><strong>原因：</strong>入口错误。应该从【应收】模块进入。</p><p>遇到其他权限问题同理，先检查模块入口是否正确。</p>"},
+{id:12,cat:"权限人员部门",cc:"b2",q:"需要增加部门",kw:["增加","部门","组织架构"],a:"<p>按系统组织架构设置流程处理部门新增。</p>"},
+{id:13,cat:"合同",cc:"b3",q:"已审核完成的合同，合同类型选错",kw:["合同","合同类型","选错","反审核"],a:"<p><strong>处理方式：</strong></p><ol><li>找业财反审核，变为暂存后删除该合同（若提示'合同档案引用了此数据，不能被删除'，先让财务删除合同档案）</li><li>重新录入正确的合同类型</li></ol><p><strong>注意：</strong>若合同已下推单据，则无法修改。</p>"},
+{id:14,cat:"业务",cc:"b4",q:"采购转固单已审核，但应付单关联不到资产卡片",kw:["采购转固","资产卡片","应付单","实物卡片","财务卡片"],a:"<p><strong>固定资产转固流程：</strong>采购转固单 → 自动生成实物卡片 → 实物卡片审批完 → 生成财务卡片 → 应付单上关联财务卡片。</p><p><strong>原因：</strong>以上单据中有其中一个未审核完。</p>"},
+{id:15,cat:"业务",cc:"b4",q:"什么时候填应付单，什么时候填付款申请单",kw:["应付单","付款申请单","发票","预付"],a:"<p><strong>区分：</strong></p><ul><li><strong>没发票：</strong>填付款申请单，走预付。等到票后填应付单冲预付款单</li><li><strong>有发票：</strong>填应付单</li></ul>"},
+{id:16,cat:"业务",cc:"b4",q:"序时账在哪导出",kw:["序时账","导出","总账","凭证"],a:"<p><strong>路径：</strong>总账 → 凭证里全选凭证，导出即可。</p>"},
+{id:17,cat:"业务",cc:"b4",q:"应付单关闭后需要发票解绑",kw:["应付单","关闭","发票解绑","全额红冲","全票池"],a:"<p><strong>注意：</strong>关闭指不付款了。如需同样业务，应点【全额红冲】。</p><p><strong>已关闭的处理：</strong></p><ol><li>【全票池查询】通过发票号查到【业务单据】</li><li>复制单据号去发票解绑</li><li>在全票池点击【删除】</li></ol>"},
+{id:18,cat:"业务",cc:"b4",q:"车船税发票无法识别",kw:["车船税","发票","识别","备注栏"],a:"<p><strong>原因：</strong>车船税在发票备注栏。</p><p><strong>解决：</strong>让经办人新增一行明细，业务项目选车船税，发票导入附件。</p>"},
+{id:19,cat:"业务",cc:"b4",q:"银行账户信息修改",kw:["银行账户","修改","资金","账户设置"],a:"<p><strong>路径：</strong>系统首页 → 财务云 → 资金 → 账户设置 → 银行账户。</p><p><strong>审批流：</strong>业务财务 → 财务经理 → 集团共享中心（异常挂起联系金蝶维护）。</p>"},
+{id:20,cat:"业务",cc:"b4",q:"收款单没有推送到NCC",kw:["收款单","NCC","推送","客户","内部客商","外部客商"],a:"<p><strong>原因：</strong>客户维护成了内部客商，需改为外部客商。</p><p><strong>解决：</strong>修改客商类型后，点击【NCC推送】。</p>"},
+{id:21,cat:"业务",cc:"b4",q:"发票识别错误怎么处理",kw:["发票","识别错误","全票池","解绑"],a:"<p><strong>步骤：</strong></p><ol><li>全票池查询业务单据编号</li><li>发票解绑处解绑发票</li><li>让经办人重新上传发票，点编辑按钮即可编辑</li></ol>"},
+{id:22,cat:"业务",cc:"b4",q:"如何反结账操作",kw:["反结账","对账","初始化","反初始化"],a:"<p><strong>步骤：</strong></p><ol><li><strong>停用对账：</strong>【初始化】→【对账启用设置】，点击停用</li><li><strong>对账反初始化：</strong>【初始化】→【对账初始化】备份后，在【结束初始化】下拉菜单点【反初始化】</li></ol>"},
+{id:23,cat:"业务",cc:"b4",q:"企业名字变更后系统需要修改什么",kw:["企业名称","变更","发票云","缓存清理"],a:"<p><strong>修改位置：</strong></p><ol><li>发票云 → 基础资料 → 企业信息</li><li>基础服务云 → 基础资料 → 发票云配置（集团）</li><li>费用核算 → 发票云配置</li><li>系统开发岗：发票云 → 基础资料 → 缓存清理</li></ol>"},
+{id:24,cat:"凭证",cc:"b5",q:"未生成凭证怎么处理",kw:["未生成","凭证","预览","借贷不平","流水匹配"],a:"<p>单据列表查询单据，若预览凭证无误，运行凭证生成请求智能方案。</p><p><strong>借贷不平：</strong>先检查流水匹配。</p><ul><li>借方多：有单据流水未匹配</li><li>贷方多：流水交叉匹配</li></ul>"},
+{id:25,cat:"凭证",cc:"b5",q:"如何修改付款单凭证日期",kw:["付款单","凭证日期","记账日期","取消付款"],a:"<p><strong>操作步骤（系统运维岗）：</strong></p><ol><li>打开【取消付款】及【付款】按钮</li><li>打开系统参数</li><li>反复核、反审核凭证，删除凭证</li><li>点击【取消付款】，【付款】选【付款日期】（即记账日期）</li><li>预览凭证确认修改成功</li><li>操作完成后还原参数</li></ol>"},
+{id:26,cat:"凭证",cc:"b5",q:"如何修改凭证现金流量",kw:["凭证","现金流量","修改","现金流量查询"],a:"<p>在【现金流量查询】中点击【设置现金流量】即可修改。</p>"},
+{id:27,cat:"特殊事项",cc:"b6",q:"采购转固单填写错误，已生成实物卡片和财务卡片",kw:["采购转固","逆向","反审核","实物卡片","财务卡片"],a:"<p><strong>逆向处理：</strong></p><ol><li>财务卡片反审核，变为暂存</li><li>实物卡片反审核，暂存的财务卡片自动删除，再删除暂存的实物卡片</li><li>采购转固单反审核</li></ol>"},
+{id:28,cat:"特殊事项",cc:"b6",q:"认领处理单业务项目选错，需要逆向处理收付款单",kw:["认领","逆向","付款","收款","取消付款","取消收款"],a:"<p><strong>付款场景：</strong></p><ol><li>打开【取消付款】按钮</li><li>反复核、反审核凭证，删除凭证</li><li>点击【取消付款】、反审核并删除付款单</li><li>开发岗去NCC删除付款结算单</li><li>取消认领确认，驳回认领结果</li></ol><p><strong>收款场景：</strong></p><ol><li>关掉智能方案JZJK_CAS_001</li><li>点击【取消收款】，反审核并删除收款单</li><li>开发岗去NCC删除收款结算单</li><li>取消认领确认，驳回认领结果</li></ol>"},
+{id:29,cat:"特殊事项",cc:"b6",q:"通用付款申请单付款账户错误，导致无法匹配流水",kw:["通用付款申请单","付款账户","流水匹配","数据处理"],a:"<p><strong>处理：</strong>需要系统开发岗进行数据处理。</p>"}
+];
+const sugs=["供应商审核失败怎么办","影像上传不上去","如何反结账","采购转固关联不到资产卡片","发票识别错误怎么处理","未生成凭证怎么处理"];
+const cm={"基础资料":"b0","流程处理":"b1","权限人员部门":"b2","合同":"b3","业务":"b4","凭证":"b5","特殊事项":"b6"};
+function init(){
+ sugs.forEach(s=>{let e=document.createElement('span');e.className='t';e.textContent=s;e.onclick=()=>{document.getElementById('q').value=s;ask()};document.getElementById('sug').appendChild(e)});
+ [...new Set(KB.map(i=>i.cat))].forEach(c=>{let e=document.createElement('span');e.className='c '+cm[c];e.textContent=c;e.onclick=()=>{let r=KB.filter(i=>i.cat===c);let h='<div class="card"><div class="lb">分类</div><div class="q">'+c+'</div><div class="a"><ul>';r.forEach(i=>{h+='<li><a href="#" onclick="aq(\''+i.q.replace(/'/g,"\\'")+'\');return false;">'+i.q+'</a></li>'});h+='</ul></div><div class="meta">共'+r.length+'条</div></div>';document.getElementById('ans').innerHTML=h};document.getElementById('cats').appendChild(e)})
+}
+function ask(){
+ let q=document.getElementById('q').value.trim();if(!q)return;
+ let ld=document.getElementById('ld');ld.className='load on';
+ setTimeout(()=>{let r=sk(q);ld.className='load';dr(q,r)},300)
+}
+function sk(q){
+ let lq=q.toLowerCase();let bm=null,bs=0;
+ KB.forEach(i=>{let s=0;if(i.q.toLowerCase().includes(lq))s+=10;
+ i.kw.forEach(k=>{if(lq.includes(k.toLowerCase())||k.toLowerCase().includes(lq))s+=5});
+ if(i.a.toLowerCase().includes(lq))s+=3;
+ let w=lq.split(/[\s,，。、？?！!；;：:]+/).filter(x=>x.length>=2);
+ w.forEach(w=>{i.kw.forEach(k=>{if(k.toLowerCase().includes(w)||w.includes(k.toLowerCase()))s+=4});if(i.q.toLowerCase().includes(w))s+=2});
+ if(s>bs){bs=s;bm=i}});
+ return{m:bm,s:bs}
+}
+function dr(q,r){
+ let c=document.getElementById('ans');
+ if(r.m&&r.s>=5){
+  let i=r.m;
+  c.innerHTML='<div class="card"><span class="badge '+cm[i.cat]+'">'+i.cat+'</span><div class="lb">问题</div><div class="q">'+hl(i.q,q)+'</div><div class="lb">回答</div><div class="a">'+i.a+'</div><div class="meta">知识库 · '+i.cat+'</div></div>'
+ }else{
+  let kw=encodeURIComponent(ek(q));let u='https://vip.kingdee.com/search?keyword='+kw;
+  c.innerHTML='<div class="nf"><div class="t">知识库中未找到匹配答案</div><div class="d">当前知识库中没有收录该问题。<br>建议前往金蝶云社区搜索。</div><a class="sl" href="'+u+'" target="_blank">前往金蝶云社区搜索</a></div>'
+ }
+}
+function ek(q){let sw=["怎么","如何","什么","哪里","哪","吗","呢","啊","的","了","在","是","有","不","要","可以","请问","我","想","问","一下","一个"];let w=q.split(/[\s,，。、？?！!；;：:]+/).filter(x=>x.length>=2);let k=w.filter(x=>!sw.includes(x));return k.length>0?k.slice(0,3).join(" "):q.slice(0,30)}
+function hl(t,q){let w=q.split(/[\s,，。、？?！!；;：:]+/).filter(x=>x.length>=2);let r=t;w.forEach(w=>{r=r.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<span class="hl">$1</span>')});return r}
+function aq(q){document.getElementById('q').value=q;ask()}
+function clr(){document.getElementById('q').value='';document.getElementById('ans').innerHTML='<div class="empty"><div class="ic">💬</div><p>在左侧输入运维相关问题，<br>系统将自动从知识库中检索答案。</p></div>'}
+document.getElementById('q').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask()}});
+init();
+</script>
+</body>
+</html>
